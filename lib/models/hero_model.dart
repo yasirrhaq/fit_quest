@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'character_model.dart';
 
 
 class HeroModel extends ChangeNotifier {
@@ -14,7 +15,6 @@ class HeroModel extends ChangeNotifier {
   String characterName = "bugon_dev";
   String activeCharacter = 'assets/images/default.png'; // Default character image
   List<String> ownedCharacters = ['assets/images/default.png']; // Starting with default character
-
 
 
   final List<Map<String, dynamic>> dailyQuestPool = [
@@ -170,7 +170,6 @@ class HeroModel extends ChangeNotifier {
   List<Map<String, dynamic>> dailyQuests = [];
   List<Map<String, dynamic>> repeatableQuests = [];
 
-
   Timer? resetTimer;
 
   HeroModel() {
@@ -178,6 +177,24 @@ class HeroModel extends ChangeNotifier {
     _startMidnightResetTimer();
     _selectRandomDailyQuests();
     _selectRandomRepeatableQuests();
+  }
+
+  bool canAfford(int price) => this.gold >= price;
+
+  void purchaseCharacter(Character character) {
+    if (canAfford(character.price) && !character.isPurchased) {
+      // Deduct the gold and add character to owned list if not already owned
+      gold -= character.price;
+      // character.isPurchased = true;
+
+      // Ensure character is only added once
+      if (!ownedCharacters.contains(character.image)) {
+        ownedCharacters.add(character.image);
+      }
+
+      _saveProgression(); // Save progression after purchase
+      notifyListeners(); // Notify listeners to update the UI
+    }
   }
 
   // Function to randomize difficulty for a given quest list
@@ -217,6 +234,7 @@ class HeroModel extends ChangeNotifier {
     xpRequired = prefs.getInt('xpRequired') ?? 100;
     gold = prefs.getInt('gold') ?? 0;
     characterName = prefs.getString('characterName') ?? "bugon_dev";
+    ownedCharacters = prefs.getStringList('ownedCharacters') ?? ownedCharacters;
     notifyListeners(); // Notify listeners to update the UI with loaded data
   }
 
@@ -227,6 +245,7 @@ class HeroModel extends ChangeNotifier {
     await prefs.setInt('xpRequired', xpRequired);
     await prefs.setInt('gold', gold);
     await prefs.setString('characterName', characterName);
+    await prefs.setStringList('ownedCharacters', ownedCharacters);
   }
 
   void setCharacterName(String name) {
@@ -243,19 +262,12 @@ class HeroModel extends ChangeNotifier {
     level = 1;
     xp = 0;
     xpRequired = 100;
-    gold = 0;
+    gold = 10000;
     characterName = "";
+    ownedCharacters.clear();
+    ownedCharacters.add('assets/images/default.png');
 
     notifyListeners(); // Update the UI
-  }
-
-  // Purchase a new character
-  void purchaseCharacter(String characterImage, int price) {
-    if (gold >= price && !ownedCharacters.contains(characterImage)) {
-      gold -= price;
-      ownedCharacters.add(characterImage);
-      notifyListeners();
-    }
   }
 
   // Set a character as active

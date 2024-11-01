@@ -37,7 +37,7 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () {
                       heroModel.setActiveCharacter(character);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Selected as active character!')),
+                        const SnackBar(content: Text('Selected as active character!')),
                       );
                     },
                     child: Stack(

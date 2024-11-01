@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final List<Widget> _screens = [
       _buildHomeContent(context, heroModel),
-      const ShopScreen(),
+      ShopScreen(),
       const ProfileScreen(),
     ];
 
@@ -32,17 +32,17 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text(_selectedIndex == 0 ? 'Fit Quest' : _selectedIndex == 1 ? 'Shop' : 'Profile'),
-      //   actions: [
-      //     IconButton(
-      //       icon: const Icon(Icons.delete),
-      //       onPressed: () {
-      //         _showResetConfirmationDialog(context, heroModel);
-      //       },
-      //     ),
-      //   ],
-      // ),
+      appBar: AppBar(
+        title: Text(_selectedIndex == 0 ? 'Fit Quest' : _selectedIndex == 1 ? 'Shop' : 'Profile'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () {
+              _showResetConfirmationDialog(context, heroModel);
+            },
+          ),
+        ],
+      ),
       body: Stack(
         children: [
           // Background Image
