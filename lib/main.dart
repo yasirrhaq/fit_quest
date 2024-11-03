@@ -1,8 +1,10 @@
+import 'package:fit_quest/screens/home_screen.dart';
 import 'package:fit_quest/screens/main_menu_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'models/hero_model.dart';
 import 'models/shop_model.dart';
+import 'screens/shop_screen.dart';
 
 void main() {
   runApp(
@@ -11,7 +13,10 @@ void main() {
         ChangeNotifierProvider(create: (context) => HeroModel()),
         ChangeNotifierProxyProvider<HeroModel, ShopModel>(
           create: (context) => ShopModel(context.read<HeroModel>()),
-          update: (context, heroModel, shopModel) => ShopModel(heroModel),
+          update: (context, heroModel, shopModel) {
+            shopModel?.updateHeroModel(heroModel); // Update heroModel in the existing ShopModel
+            return shopModel!;
+          },
         ),
       ],
       child: const FitQuestApp(),
@@ -29,7 +34,13 @@ class FitQuestApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MainMenuScreen(),
+      initialRoute: '/main',
+      routes: {
+        '/main': (context) => const MainMenuScreen(),
+        '/home': (context) => const HomeScreen(), // Define the home screen route
+        '/shop': (context) => ShopScreen(), // Define the shop screen route, if needed
+      },
     );
   }
+
 }

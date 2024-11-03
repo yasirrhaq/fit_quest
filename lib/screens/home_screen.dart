@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_selectedIndex == 0 ? 'Fit Quest' : _selectedIndex == 1 ? 'Shop' : 'Profile'),
+        title: Text(_selectedIndex == 0 ? 'Fit Quest' : _selectedIndex == 1 ? 'Character Shop' : 'Hero Profile'),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete),

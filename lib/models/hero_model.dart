@@ -181,7 +181,7 @@ class HeroModel extends ChangeNotifier {
 
   bool canAfford(int price) => this.gold >= price;
 
-  void purchaseCharacter(Character character) {
+  void purchaseCharacter(CharacterModel character) {
     if (canAfford(character.price) && !character.isPurchased) {
       // Deduct the gold and add character to owned list if not already owned
       gold -= character.price;

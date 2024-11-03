@@ -2,21 +2,28 @@ import 'package:flutter/material.dart';
 import 'hero_model.dart';
 import 'character_model.dart';
 
+List<CharacterModel> initialCharacters = [
+  CharacterModel(id: "1", name: "Gon", price: 100, image: 'assets/images/gon.png'),
+  CharacterModel(
+      id: "2", name: "Sukuna", price: 150, image: 'assets/images/sukuna.png'),
+  CharacterModel(
+      id: "3",
+      name: "Sukuna 4 Arms",
+      price: 200,
+      image: 'assets/images/sukuna2.png'),
+  CharacterModel(id: "4", name: "Asta", image: 'assets/images/asta-thiccsnail.jpg', price: 99999),
+];
+
 class ShopModel extends ChangeNotifier {
-  final HeroModel heroModel; // Reference to HeroModel for accessing gold
+  HeroModel heroModel;
+  List<CharacterModel> characters;
 
-  ShopModel(this.heroModel);
+  ShopModel(this.heroModel) : characters = initialCharacters;
 
-  List<Character> characters = [
-    Character(id: "1", name: "Gon", price: 100, image: 'assets/images/gon.png'),
-    Character(
-        id: "2", name: "Sukuna", price: 150, image: 'assets/images/sukuna.png'),
-    Character(
-        id: "3",
-        name: "Sukuna 4 Arms",
-        price: 200,
-        image: 'assets/images/sukuna2.png'),
-  ];
+  void updateHeroModel(HeroModel newHeroModel) {
+    heroModel = newHeroModel;
+    notifyListeners(); // Notify listeners if needed, e.g., if the UI depends on heroModel changes
+  }
 
   List<String> unlockedCharacters = [];
 
@@ -32,22 +39,88 @@ class ShopModel extends ChangeNotifier {
   //   }
   // }
 
-  void attemptPurchase(Character character) {
-    // Ensure sufficient gold and check if character is already purchased
+  void attemptPurchase(CharacterModel character) {
+    // Check if the hero can afford the character and the character is not already purchased
     if (heroModel.canAfford(character.price) && !character.isPurchased) {
+      // Deduct gold and add character to hero's owned characters
+      heroModel.purchaseCharacter(character);
 
-      // Locate the character in the list by id and update its purchase status
-      int index = characters.indexWhere((c) => c.id == character.id);
+      // Update the character's purchase status
+      character.purchase(); // This will notify listeners specifically for this character
 
-      heroModel.purchaseCharacter(
-          characters[index]); // Add to hero's owned characters
+      // Notify listeners to update the hero's gold display
+      heroModel.notifyListeners();
 
-      characters[index].isPurchased = true;
-
-      notifyListeners(); // Update shop UI
-      heroModel.notifyListeners(); // Update hero's gold UI
+      print("After purchase: ${character.name} isPurchased = ${character.isPurchased}");
+    } else if (!heroModel.canAfford(character.price)) {
+      print("Not enough gold to purchase ${character.name}.");
+    } else {
+      print("${character.name} has already been purchased.");
     }
   }
+
+  void _showCharacterPreview(BuildContext context, ShopModel shopModel, CharacterModel character) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(character.name),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(character.image, height: 150, width: 150),
+              SizedBox(height: 16),
+              Text('Price: ${character.price} gold'),
+              SizedBox(height: 8),
+              Text(
+                "Are you sure you want to buy ${character.name}?",
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Close preview dialog
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close preview dialog
+                _showPurchaseConfirmationDialog(context, shopModel, character); // Show confirmation dialog
+              },
+              child: const Text('Proceed to Buy'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showPurchaseConfirmationDialog(BuildContext context, ShopModel shopModel, CharacterModel character) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Purchase'),
+          content: Text('Do you want to purchase ${character.name} for ${character.price} gold?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Close confirmation dialog
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                shopModel.attemptPurchase(character);
+                Navigator.of(context).pop(); // Close confirmation dialog
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
 
 // void reorderCharacters() {
 //   characters.sort((a, b) {
@@ -85,4 +158,3 @@ class ShopModel extends ChangeNotifier {
 //     heroModel.notifyListeners(); // Ensure HeroModel updates the gold in the UI
 //   }
 // }
-}

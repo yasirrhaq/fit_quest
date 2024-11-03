@@ -10,9 +10,6 @@ class ProfileScreen extends StatelessWidget {
     final heroModel = Provider.of<HeroModel>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Hero Profile'),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

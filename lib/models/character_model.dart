@@ -1,15 +1,24 @@
-class Character {
+import 'package:flutter/foundation.dart';
+
+class CharacterModel extends ChangeNotifier {
   final String id;
   final String name;
-  final int price;
   final String image;
-  bool isPurchased;
+  final int price;
+  bool _isPurchased;
 
-  Character({
+  CharacterModel({
     required this.id,
     required this.name,
-    required this.price,
     required this.image,
-    this.isPurchased = false,
-  });
+    required this.price,
+    bool isPurchased = false,
+  }) : _isPurchased = isPurchased;
+
+  bool get isPurchased => _isPurchased;
+
+  void purchase() {
+    _isPurchased = true;
+    notifyListeners(); // Notify only this instance’s listeners
+  }
 }
