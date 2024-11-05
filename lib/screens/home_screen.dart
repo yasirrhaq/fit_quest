@@ -16,8 +16,26 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+
     final heroModel = Provider.of<HeroModel>(context, listen: false);
+
+    // Listen for level-up events and show the popup
+    heroModel.levelUpNotifier.addListener(() {
+      if (heroModel.levelUpNotifier.value) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // _showLevelUpPopup(context, heroModel.level);
+          heroModel
+              .resetLevelUpNotifier(); // Reset notifier after showing popup
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final heroModel = Provider.of<HeroModel>(context);
 
     final List<Widget> _screens = [
       _buildHomeContent(context, heroModel),
@@ -25,15 +43,13 @@ class _HomeScreenState extends State<HomeScreen> {
       const ProfileScreen(),
     ];
 
-    void onItemTapped(int index) {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(_selectedIndex == 0 ? 'Fit Quest' : _selectedIndex == 1 ? 'Character Shop' : 'Hero Profile'),
+        title: Text(_selectedIndex == 0
+            ? 'Fit Quest'
+            : _selectedIndex == 1
+                ? 'Character Shop'
+                : 'Hero Profile'),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete),
@@ -45,11 +61,10 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Stack(
         children: [
-          // Background Image
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/gymbg.png'),
+                image: AssetImage(heroModel.activeBackground?.image ?? 'assets/images/gymbg.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -85,6 +100,25 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  // Level-up popup function
+  void _showLevelUpPopup(BuildContext context, int level) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Congratulations!'),
+          content: Text("Level Up! You've reached Level $level!"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -146,14 +180,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 8),
                         LinearProgressIndicator(
-                          value: hero.xp / hero.xpRequired,
+                          value: hero.exp / hero.expRequired,
                           minHeight: 10,
                           backgroundColor: Colors.white.withOpacity(0.3),
                           color: Colors.greenAccent,
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'XP: ${hero.xp} / ${hero.xpRequired}',
+                          'exp: ${hero.exp} / ${hero.expRequired}',
                           style: const TextStyle(
                               fontSize: 18, color: Colors.white),
                         ),
@@ -163,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           curve: Curves.bounceInOut,
                           height: 100 + (hero.level * 5).toDouble(),
                           child: Image.asset(
-                            heroModel.activeCharacter,
+                            heroModel.activeCharacter?.image ?? 'assets/images/default.png',
                             width: 200,
                             height: 200,
                           ),
@@ -171,6 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
+                  // Quest lists (Daily Quests and Repeatable Quests)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
@@ -198,9 +233,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       return QuestTile(
                         questName: dailyQuest['name'],
                         difficulty: difficulty,
-                        xpReward: difficultyData['xpReward'],
+                        expReward: difficultyData['expReward'],
                         maxCount: maxCount,
                         currentCount: currentCount,
+                        repeatCount: 0,
+                        // Track repetitions for repeatable quests
+                        isCompleted: dailyQuest['completed'] ?? false,
+                        isRepeatable: false,
+                        // Disable quest when max repeatable count is reached
                         onIncrement: () {
                           hero.incrementDailyQuest(index);
                         },
@@ -210,16 +250,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      'Repeatable Quests (Up to 10 times each)',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold),
-                    ),
+                  Consumer<HeroModel>(
+                    builder: (context, hero, child) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          'Repeatable Quests (${hero.totalRepeatableCount}/10)',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   ListView.builder(
                     shrinkWrap: true,
@@ -237,12 +282,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       return QuestTile(
                         questName: repeatableQuest['name'],
                         difficulty: difficulty,
-                        xpReward: difficultyData['xpReward'],
+                        expReward: difficultyData['expReward'],
                         maxCount: maxCount,
                         currentCount: currentCount,
-                        onIncrement: () {
-                          hero.incrementRepeatableQuest(index);
-                        },
+                        repeatCount: repeatableQuest['repeatCount'] ?? 0,
+                        isCompleted: hero.totalRepeatableCount >= 10, // Set based on max repeat count
+                        isRepeatable: true,
+                        onIncrement: hero.repeatableDisabled
+                            ? () {} // Pass an empty function if disabled
+                            : () => hero.incrementRepeatableQuest(index),
                         onDecrement: () {
                           hero.decrementRepeatableQuest(index);
                         },
