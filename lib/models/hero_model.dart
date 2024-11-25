@@ -235,20 +235,38 @@ class HeroModel extends ChangeNotifier {
     }
   }
 
+  // void setActiveCharacter(AssetModel character) {
+  //   if (character.category == 'Character') {
+  //     activeCharacter = character;
+  //     _saveProgression();
+  //     notifyListeners();
+  //   }
+  // }
+
   void setActiveCharacter(AssetModel character) {
-    if (character.category == 'Character') {
-      activeCharacter = character;
-      _saveProgression();
-      notifyListeners();
-    }
+    activeCharacter = ownedAssets.firstWhere(
+          (asset) => asset.id == character.id,
+      orElse: () => character,
+    );
+    _saveProgression();
+    notifyListeners();
   }
 
+  // void setActiveBackground(AssetModel background) {
+  //   if (background.category == 'Background') {
+  //     activeBackground = background;
+  //     _saveProgression();
+  //     notifyListeners();
+  //   }
+  // }
+
   void setActiveBackground(AssetModel background) {
-    if (background.category == 'Background') {
-      activeBackground = background;
-      _saveProgression();
-      notifyListeners();
-    }
+    activeBackground = ownedAssets.firstWhere(
+          (asset) => asset.id == background.id,
+      orElse: () => background,
+    );
+    _saveProgression();
+    notifyListeners();
   }
 
   List<AssetModel> get ownedCharacters =>
@@ -287,7 +305,7 @@ class HeroModel extends ChangeNotifier {
         return characterAsset;
       }
     }
-    // Fallback asset
+
     return defaultCharacter;
   }
 

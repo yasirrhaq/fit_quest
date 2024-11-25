@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:fit_quest/utils/BGMPlayer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fit_quest/models/hero_model.dart';
 import 'home_screen.dart';
+import '../utils/BGMPlayer.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({Key? key}) : super(key: key);
@@ -19,18 +21,20 @@ class _MainMenuScreenState extends State<MainMenuScreen> with SingleTickerProvid
   void initState() {
     super.initState();
     _startBlinkingAnimation();
+    bgmPlayer.playBGM('audio/chillguy-summer.mp3');
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    bgmPlayer.stopBGM();
     super.dispose();
   }
 
   void _startBlinkingAnimation() {
     _timer = Timer.periodic(const Duration(milliseconds: 700), (timer) {
       setState(() {
-        _opacity = _opacity == 1.0 ? 0.3 : 1.0; // Toggle opacity between 1 and 0.3
+        _opacity = _opacity == 1.0 ? 0.3 : 1.0; // Kelap kelip
       });
     });
   }

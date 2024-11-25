@@ -27,6 +27,7 @@ class AssetModel extends ChangeNotifier {
       'price': price,
       'image': image,
       'category': category,
+      'isPurchased': _isPurchased,
     };
   }
 
@@ -38,8 +39,18 @@ class AssetModel extends ChangeNotifier {
       price: json['price'],
       image: json['image'],
       category: json['category'],
+      isPurchased: json['isPurchased'] ?? false,
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true; // Check if the objects are the same instance
+    return other is AssetModel && id == other.id; // Compare by unique id
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 
   void purchase() {
     _isPurchased = true;

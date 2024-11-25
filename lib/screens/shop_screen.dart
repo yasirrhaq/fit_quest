@@ -44,7 +44,7 @@ class ShopScreen extends StatelessWidget {
                     child: Row(
                       children: [
                         Image.asset(
-                          'assets/images/gold.png', // Path to the gold icon
+                          'assets/images/gold.png',
                           width: 20,
                           height: 20,
                         ),
@@ -164,75 +164,6 @@ class ShopScreen extends StatelessWidget {
     );
   }
 
-  // return Scaffold(
-  //   body: Column(
-  //     children: [
-  //       // Gold display at the top of the body
-  //       Padding(
-  //         padding: const EdgeInsets.all(16.0),
-  //         child: Row(
-  //           mainAxisAlignment: MainAxisAlignment.end,
-  //           children: [
-  //             Image.asset(
-  //               'assets/images/gold.png', // Path to your gold icon
-  //               width: 24,
-  //               height: 24,
-  //             ),
-  //             SizedBox(width: 8),
-  //             Text(
-  //               '${heroModel.gold}', // Display the gold amount
-  //               style: TextStyle(fontSize: 18),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //       // asset list below the gold display
-  //       Expanded(
-  //         child: ListView.builder(
-  //           itemCount: shopModel.assets.length,
-  //           itemBuilder: (context, index) {
-  //             final asset = shopModel.assets[index];
-  //             return ListTile(
-  //               leading: GestureDetector(
-  //                 child: Image.asset(
-  //                   asset.image,
-  //                   width: 50,
-  //                   height: 50,
-  //                   fit: BoxFit.cover,
-  //                 ),
-  //               ),
-  //               title: Text(asset.name),
-  //               subtitle: Row(
-  //                 children: [
-  //                   Text("${asset.price}"),
-  //                   SizedBox(width: 4),
-  //                   Image.asset(
-  //                     'assets/images/gold.png', // Path to your gold icon
-  //                     width: 16,
-  //                     height: 16,
-  //                   ),
-  //                 ],
-  //               ),
-  //               trailing: ElevatedButton(
-  //                 onPressed: asset.isPurchased
-  //                     ? null
-  //                     : () {
-  //                         _showAssetPreview(
-  //                             context, shopModel, asset);
-  //                       },
-  //                 child: Text(asset.isPurchased ? "Purchased" : "Buy"),
-  //               ),
-  //             );
-  //           },
-  //         ),
-  //       ),
-  //     ],
-  //   ),
-  //   bottomNavigationBar: Padding(
-  //     padding: const EdgeInsets.all(8.0),
-  //   ),
-  // );}
-
   void _showAssetPreview(BuildContext context, ShopModel shopModel,
       AssetModel asset) {
     final heroModel = shopModel.heroModel; // Access HeroModel through ShopModel
@@ -265,10 +196,10 @@ class ShopScreen extends StatelessWidget {
             ),
             if (heroModel.gold >=
                 asset
-                    .price) // Show "Proceed to Buy" only if user has enough gold
+                    .price) // Show "Proceed to Buy" if enough gold
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close preview dialog
+                  Navigator.of(context).pop();
                   shopModel.attemptPurchase(asset);
                 },
                 child: const Text('Proceed to Buy'),
@@ -276,9 +207,9 @@ class ShopScreen extends StatelessWidget {
             else
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close preview dialog
+                  Navigator.of(context).pop();
                   _showInsufficientFundsDialog(
-                      context); // Show insufficient funds warning
+                      context); // Show insufficient gold warning
                 },
                 child: const Text('Get More Gold'),
               ),

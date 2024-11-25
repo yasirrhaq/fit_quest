@@ -1,12 +1,16 @@
 import 'package:fit_quest/screens/home_screen.dart';
 import 'package:fit_quest/screens/main_menu_screen.dart';
+import 'package:fit_quest/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'models/hero_model.dart';
 import 'models/shop_model.dart';
 import 'screens/shop_screen.dart';
+import 'utils/BGMPlayer.dart';
 
 void main() {
+  final BGMPlayer bgmPlayer = BGMPlayer();
+
   runApp(
     MultiProvider(
       providers: [
@@ -34,8 +38,9 @@ class FitQuestApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/main',
+      initialRoute: '/',
       routes: {
+        '/': (context) => SplashScreen(),
         '/main': (context) => const MainMenuScreen(),
         '/home': (context) => const HomeScreen(), // Define the home screen route
         '/shop': (context) => ShopScreen(), // Define the shop screen route, if needed

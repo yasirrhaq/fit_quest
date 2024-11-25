@@ -44,21 +44,21 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_selectedIndex == 0
-            ? 'Fit Quest'
-            : _selectedIndex == 1
-                ? 'Character Shop'
-                : 'Hero Profile'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () {
-              _showResetConfirmationDialog(context, heroModel);
-            },
-          ),
-        ],
-      ),
+      // appBar: AppBar(
+      //   title: Text(_selectedIndex == 0
+      //       ? 'Fit Quest'
+      //       : _selectedIndex == 1
+      //           ? 'Character Shop'
+      //           : 'Hero Profile'),
+      //   actions: [
+      //     IconButton(
+      //       icon: const Icon(Icons.delete),
+      //       onPressed: () {
+      //         _showResetConfirmationDialog(context, heroModel);
+      //       },
+      //     ),
+      //   ],
+      // ),
       body: Stack(
         children: [
           Container(
@@ -100,25 +100,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  // Level-up popup function
-  void _showLevelUpPopup(BuildContext context, int level) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Congratulations!'),
-          content: Text("Level Up! You've reached Level $level!"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
     );
   }
 
